@@ -66,10 +66,9 @@ export default function makeEditor({ editorPluginsToRun }) {
       markers: {},
       goToLine: {},
       errors: fromJS([]),
-      editorActions: {onLoad(){}},
+      editorActions: { onLoad() {} },
       editorOptions: {},
       debounce: 800 // 0.5 imperial seconds™
-
     }
 
     checkForSilentOnChange = (value) => {
@@ -79,7 +78,6 @@ export default function makeEditor({ editorPluginsToRun }) {
     }
 
     onLoad = (editor) => {
-
       const { props } = this
       const { AST, specObject } = props
 
@@ -88,12 +86,12 @@ export default function makeEditor({ editorPluginsToRun }) {
 
       this.editor = editor
 
-      // fixes a warning, see https://github.com/ajaxorg/ace/issues/2499
+      // https://github.com/angular-ui/ui-ace/issues/104
       editor.$blockScrolling = Infinity
 
-
       session.setUseWrapMode(true)
-      session.on("changeScrollLeft", xPos => { // eslint-disable-line no-unused-vars
+      session.setScrollTop(0)
+      session.on("changeScrollLeft", () => {
         session.setScrollLeft(0)
       })
 
@@ -256,8 +254,8 @@ export default function makeEditor({ editorPluginsToRun }) {
       win.document.removeEventListener("click", this.onClick)
     }
 
-    // eslint-disable-next-line react/no-deprecated
-    componentWillReceiveProps(nextProps) {
+    // eslint-disable-next-line react/no-deprecated, camelcase
+    UNSAFE_componentWillReceiveProps(nextProps) {
       let hasChanged = (k) => !isEqual(nextProps[k], this.props[k])
       const editor = this.editor
 

@@ -90,7 +90,7 @@ describe('validation plugin - semantic - 2and3 paths', () => {
     describe('Path parameter definitions need matching paramater declarations', () => {
       describe('OpenAPI 3', () => {
         it(
-          'should not return problems for a valid path-level definiton/declaration pair',
+          'should not return problems for a valid path-level definition/declaration pair',
           () => {
             const spec = {
               openapi: '3.0.0',
@@ -111,23 +111,25 @@ describe('validation plugin - semantic - 2and3 paths', () => {
         );
 
         it(
-          'should not return problems for a valid path-level definiton/declaration pair using a $ref',
+          'should not return problems for a valid path-level definition/declaration pair using a $ref',
           () => {
             const spec = {
               openapi: '3.0.0',
               paths: {
                 '/CoolPath/{id}': {
                   parameters: [
-                    { $ref: '#/parameters/id' }
+                    { $ref: '#/components/parameters/id' }
                   ]
                 }
               },
-              parameters: {
-                id: {
-                  name: 'id',
-                  in: 'path',
-                  description: 'An id',
-                  required: true
+              components: {
+                parameters: {
+                  id: {
+                    name: 'id',
+                    in: 'path',
+                    description: 'An id',
+                    required: true
+                  }
                 }
               }
             };
@@ -137,7 +139,7 @@ describe('validation plugin - semantic - 2and3 paths', () => {
         );
 
         it(
-          'should not return problems for a valid operation-level definiton/declaration pair',
+          'should not return problems for a valid operation-level definition/declaration pair',
           () => {
             const spec = {
               openapi: '3.0.0',
@@ -189,7 +191,7 @@ describe('validation plugin - semantic - 2and3 paths', () => {
               const allErrors = system.errSelectors.allErrors().toJS();
               const firstError = allErrors[0];
               expect(allErrors.length).toEqual(1);
-              expect(firstError.message).toEqual( 'Declared path parameter \"id\" needs to be defined within every operation in the path (missing in "post", "delete"), or moved to the path-level parameters object');
+              expect(firstError.message).toEqual( 'Declared path parameter "id" needs to be defined within every operation in the path (missing in "post", "delete"), or moved to the path-level parameters object');
               expect(firstError.path).toEqual(['paths', '/CoolPath/{id}']);
             });
           }
@@ -265,7 +267,7 @@ describe('validation plugin - semantic - 2and3 paths', () => {
 
       describe('Swagger 2', () => {
         it(
-          'should not return problems for a valid path-level definiton/declaration pair',
+          'should not return problems for a valid path-level definition/declaration pair',
           () => {
             const spec = {
               swagger: '2.0',
@@ -286,7 +288,7 @@ describe('validation plugin - semantic - 2and3 paths', () => {
         );
 
         it(
-          'should not return problems for a valid path-level definiton/declaration pair using a $ref',
+          'should not return problems for a valid path-level definition/declaration pair using a $ref',
           () => {
             const spec = {
               swagger: '2.0',
@@ -312,7 +314,7 @@ describe('validation plugin - semantic - 2and3 paths', () => {
         );
 
         it(
-          'should not return problems for a valid operation-level definiton/declaration pair',
+          'should not return problems for a valid operation-level definition/declaration pair',
           () => {
             const spec = {
               swagger: '2.0',
@@ -364,7 +366,7 @@ describe('validation plugin - semantic - 2and3 paths', () => {
               const allErrors = system.errSelectors.allErrors().toJS();
               const firstError = allErrors[0];
               expect(allErrors.length).toEqual(1);
-              expect(firstError.message).toEqual( 'Declared path parameter \"id\" needs to be defined within every operation in the path (missing in "post", "delete"), or moved to the path-level parameters object');
+              expect(firstError.message).toEqual( 'Declared path parameter "id" needs to be defined within every operation in the path (missing in "post", "delete"), or moved to the path-level parameters object');
               expect(firstError.path).toEqual(['paths', '/CoolPath/{id}']);
             });
           }
@@ -490,13 +492,13 @@ describe('validation plugin - semantic - 2and3 paths', () => {
                 }
               }
             };
-    
+
             return validateHelper(spec)
               .then(system => {
-                const allErrors = system.errSelectors.allErrors().toJS();    
+                const allErrors = system.errSelectors.allErrors().toJS();
                 const firstError = allErrors[0];
                 expect(allErrors.length).toEqual(1);
-                expect(firstError.message).toEqual('Parameter names are case-sensitive. The parameter named "myparam" does not match the case used in the path "/{myParam}".');    
+                expect(firstError.message).toEqual('Parameter names are case-sensitive. The parameter named "myparam" does not match the case used in the path "/{myParam}".');
               });
           }
         );

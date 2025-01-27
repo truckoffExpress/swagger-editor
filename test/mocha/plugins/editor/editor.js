@@ -1,10 +1,10 @@
 import expect, { createSpy } from "expect"
 import rewiremock from "rewiremock"
-import Enzyme, { shallow } from "enzyme"
-import Adapter from "enzyme-adapter-react-15"
+import { shallow } from "enzyme"
+import { fromJS } from "immutable"
+import sinon from "sinon"
 import React from "react"
 import FakeAce from "test/mocha/mocks/ace.js"
-import { fromJS } from "immutable"
 
 const pause = (ms) => new Promise((res) => setTimeout(res, ms))
 
@@ -23,9 +23,6 @@ const EVENTUALLY = 900 // ms
 
 describe("editor", function () {
   before(function () {
-    // Enzyme.configure({ adapter: new Adapter()})
-    Enzyme.configure({ adapter: new Adapter() })
-
     // Whole bunch of mocks!
     rewiremock.enable()
     rewiremock("brace/mode/yaml").with({})
@@ -54,7 +51,7 @@ describe("editor", function () {
       rewiremock("brace").with(fakeAce)
       const makeEditor = require("plugins/editor/components/editor.jsx").default
       const Editor = makeEditor({})
-      const spy = createSpy()
+      const spy = sinon.spy()
       const wrapper = shallow(
         <Editor onChange={spy} />
       )
@@ -67,8 +64,8 @@ describe("editor", function () {
 
       // Then
       setTimeout(() => {
-        expect(spy.calls.length).toEqual(1)
-        expect(spy.calls[0].arguments[0]).toEqual("hello")
+        expect(spy.callCount).toEqual(1)
+        expect(spy.getCall(0).args[0]).toEqual("hello")
         done()
       }, EVENTUALLY)
 
@@ -172,7 +169,7 @@ describe("editor", function () {
       rewiremock("brace").with(fakeAce)
       const makeEditor = require("plugins/editor/components/editor.jsx").default
       const Editor = makeEditor({})
-      const spy = createSpy()
+      const spy = sinon.spy()
       const wrapper = shallow(
         <Editor value="original value" onChange={spy} />
       )
@@ -184,7 +181,7 @@ describe("editor", function () {
 
       await pause(EVENTUALLY)
       expect(fakeAce.userSees()).toEqual("original value")
-      expect(spy.calls.length).toEqual(1)
+      expect(spy.callCount).toEqual(1)
     })
 
     describe("markers", function () {
@@ -192,7 +189,7 @@ describe("editor", function () {
       it("should place markers into editor", async function () {
         // Given
         const fakeAce = new FakeAce()
-        const spy = createSpy()
+        const spy = sinon.spy()
         rewiremock("brace").with(fakeAce)
         rewiremock("../editor-helpers/marker-placer").with({ placeMarkerDecorations: spy })
         const makeEditor = require("plugins/editor/components/editor.jsx").default
@@ -207,16 +204,16 @@ describe("editor", function () {
         await pause(EVENTUALLY)
 
         // Then
-        expect(spy.calls.length).toEqual(1)
-        expect(spy.calls[0].arguments[0]).toInclude({ markers: { one: 1 } })
+        expect(spy.callCount).toEqual(1)
+        expect(spy.getCall(0).args[0]).toMatchObject({ markers: { one: 1 } })
       })
 
       it("should place markers after yaml", async function () {
         // Given
         const order = []
         const fakeAce = new FakeAce()
-        fakeAce.setValue.andCall(() => order.push("setValue"))
-        const spy = createSpy().andCall(() => order.push("placeMarkers"))
+        fakeAce.setValue.callsFake(() => order.push("setValue"))
+        const spy = sinon.stub().callsFake(() => order.push("placeMarkers"))
         rewiremock("brace").with(fakeAce)
         rewiremock("../editor-helpers/marker-placer").with({ placeMarkerDecorations: spy })
         const makeEditor = require("plugins/editor/components/editor.jsx").default

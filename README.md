@@ -1,17 +1,31 @@
 # <img src="https://raw.githubusercontent.com/swagger-api/swagger.io/wordpress/images/assets/SWE-logo-clr.png" height="80">
-[![NPM version](https://badge.fury.io/js/swagger-ui.svg)](http://badge.fury.io/js/swagger-editor)
+[![NPM version](https://badge.fury.io/js/swagger-editor.svg)](http://badge.fury.io/js/swagger-editor)
 [![Build Status](https://jenkins.swagger.io/buildStatus/icon?job=oss-swagger-editor-master)](https://jenkins.swagger.io/job/oss-swagger-editor-master/)
 [![Code Climate](https://codeclimate.com/github/swagger-api/swagger-editor/badges/gpa.svg)](https://codeclimate.com/github/swagger-api/swagger-editor)
-[![Dependency Status](https://david-dm.org/swagger-api/swagger-editor/status.svg)](https://david-dm.org/swagger-api/swagger-editor)
-[![devDependency Status](https://david-dm.org/swagger-api/swagger-editor/dev-status.svg)](https://david-dm.org/swagger-api/swagger-editor-#info=devDependencies)
 [![Build Status](https://jenkins.swagger.io/view/OSS%20-%20JavaScript/job/oss-swagger-editor-master/badge/icon?subject=jenkins%20build)](https://jenkins.swagger.io/view/OSS%20-%20JavaScript/job/oss-swagger-editor-master/)
 
-**🕰️ Looking for the older version of Swagger Editor?** Refer to the [*2.x* branch](https://github.com/swagger-api/swagger-editor/tree/2.x).
+**⏰️ Looking for the next generation version of Swagger Editor?**
 
-Swagger Editor lets you edit [Swagger API specifications](https://github.com/swagger-api/swagger-spec/blob/master/versions/2.0.md) in YAML inside your browser and to preview documentations in real time.
-Valid Swagger JSON descriptions can then be generated and used with the full Swagger tooling (code generation, documentation, etc).
+SwaggerEditor is now released under two major release channels:
 
-As a brand new version, written from the ground up, there are some known issues and unimplemented features. Check out the [Known Issues](#known-issues) section for more details.
+1. [SwaggerEditor@4](https://github.com/swagger-api/swagger-editor/releases?q=v4&expanded=true) - released from [master](https://github.com/swagger-api/swagger-editor/tree/master) branch and deployed at https://editor.swagger.io/
+2. [SwaggerEditor@5](https://github.com/swagger-api/swagger-editor/releases?q=v5&expanded=true) - released from [next](https://github.com/swagger-api/swagger-editor/tree/next) branch and deployed at https://editor-next.swagger.io/
+
+Only **SwaggerEditor@5** supports [OpenAPI 3.1.0](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.0.md). 
+SwaggerEditor@4 will not receive OpenAPI 3.1.0 support and is considered legacy at this point.
+The plan is to continually migrate fully to SwaggerEditor@5 and deprecate the SwaggerEditor@4 in the future.
+
+---
+
+**🕰️ Looking for the older version of Swagger Editor?** Refer to the [*2.x*](https://github.com/swagger-api/swagger-editor/tree/2.x) or [*3.x*](https://github.com/swagger-api/swagger-editor/tree/3.x) branches.
+
+---
+
+Swagger Editor lets you edit **OpenAPI API definitions** ([OpenAPI 2.0](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/2.0.md) and [OpenAPI 3.0.3](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.3.md)) 
+in JSON or YAML format inside your browser and to preview documentations in real time.
+Valid OpenAPI definitions can then be generated and used with the full Swagger tooling (code generation, documentation, etc).
+
+As a brand-new version, written from the ground up, there are some known issues and unimplemented features. Check out the [Known Issues](#known-issues) section for more details.
 
 This repository publishes to two different NPM modules:
 
@@ -20,7 +34,22 @@ This repository publishes to two different NPM modules:
 
 If you're building a single-page application, using `swagger-editor` is strongly recommended, since `swagger-editor-dist` is significantly larger.
 
-For the older version of swagger-editor, refer to the [*2.x branch*](https://github.com/swagger-api/swagger-editor/tree/2.x).
+## Anonymized analytics
+
+Swagger Editor uses [Scarf](https://scarf.sh/) to collect [anonymized installation analytics](https://github.com/scarf-sh/scarf-js?tab=readme-ov-file#as-a-user-of-a-package-using-scarf-js-what-information-does-scarf-js-send-about-me). These analytics help support the maintainers of this library and ONLY run during installation. To [opt out](https://github.com/scarf-sh/scarf-js?tab=readme-ov-file#as-a-user-of-a-package-using-scarf-js-how-can-i-opt-out-of-analytics), you can set the `scarfSettings.enabled` field to `false` in your project's `package.json`:
+
+```
+// package.json
+{
+  // ...
+  "scarfSettings": {
+    "enabled": false
+  }
+  // ...
+}
+```
+
+Alternatively, you can set the environment variable `SCARF_ANALYTICS` to `false` as part of the environment that installs your npm packages, e.g., `SCARF_ANALYTICS=false npm install`.
 
 ## Helpful scripts
 
@@ -63,24 +92,14 @@ Script name | Description
 
 ## Running locally
 
-##### Prerequisites
+### Prerequisites
 
-- NPM >=6.12.x
+- git, any version
+- **Node.js >=20.3.0** and **npm >=9.6.7** are the minimum required versions that this repo runs on, but we always recommend using the latest version of Node.js.
 
-Generally, we recommend the following guidelines from [Node.js Releases](https://nodejs.org/en/about/releases/) to only use Active LTS or Maintenance LTS releases.
-
-Current Node.js:
-- Node.js 16.x
-- NPM >=7.10.x
-
-Current Node.js Active LTS:
-- Node.js 14.x
-- NPM >=6.12.x
-
-Current Node.js Maintenance LTS:
-- Node.js >=12.4
-- NPM >=6.12.x
-
+```shell
+ $ npm i --legacy-peer-deps
+```
 
 If you have Node.js and npm installed, you can run `npm start` to spin up a static server.
 
@@ -113,24 +132,47 @@ docker run -d -p 80:8080 swaggerapi/swagger-editor
 
 This will run Swagger Editor (in detached mode) on port 80 on your machine, so you can open it by navigating to `http://localhost` in your browser.  
 
+* You can provide a URL pointing to an API definition (may not be available if some security policies such as CSP or CORS are enforced):
 
-* You can provide your own `json` or `yaml` definition file on your host
+```
+docker run -d -p 80:8080 -e URL="https://petstore3.swagger.io/api/v3/openapi.json" swaggerapi/swagger-editor
+```
+
+* You can provide your own `json` or `yaml` definition file from your local host:
 
 ```
 docker run -d -p 80:8080 -v $(pwd):/tmp -e SWAGGER_FILE=/tmp/swagger.json swaggerapi/swagger-editor
 ```
 
-* You can provide a API document from your local machine — for example, if you have a file at `./bar/swagger.json`:
+**Note:** When both `URL` and `SWAGGER_FILE` environment variables are set, `URL` has priority and `SWAGGER_FILE` is ignored.
 
-```
-docker run -d -p 80:8080 -e URL=/foo/swagger.json -v /bar:/usr/share/nginx/html/foo swaggerapi/swagger-editor
-```
-
-* You can specify a different base url for accessing the application - for example if you want the application to be available at `http://localhost/swagger-editor/`:
+* You can specify a different base url via `BASE_URL` variable for accessing the application - for example if you want the application to be available at `http://localhost/swagger-editor/`:
 
 ```
 docker run -d -p 80:8080 -e BASE_URL=/swagger-editor swaggerapi/swagger-editor
 ```
+
+* You can specify a different port via `PORT` variable for accessing the application, default is `8080`.
+
+```
+docker run -d -p 80:80 -e PORT=80 swaggerapi/swagger-editor
+```
+
+* You can specify Google Tag Manager ID via `GTM` variable for tracking the usage of the swagger-editor.
+
+```
+docker run -d -p 80:8080 -e GTM=GTM-XXXXXX swaggerapi/swagger-editor
+```
+
+You can also customize the different endpoints used by the Swagger Editor with the following environment variables. For instance, this can be useful if you have your own Swagger generator server:
+
+Environment variable | Default value
+--- | ---
+`URL_SWAGGER2_GENERATOR` | `https://generator.swagger.io/api/swagger.json`
+`URL_OAS3_GENERATOR` | `https://generator3.swagger.io/openapi.json`
+`URL_SWAGGER2_CONVERTER` | `https://converter.swagger.io/api/convert`
+
+If you want to run the Swagger Editor locally without the Codegen features (Generate Server and Generate Client) you can set the above environment variables to `null` (`URL_SWAGGER2_CONVERTER=null`).
 
 ### Building and running an image locally
 
@@ -148,7 +190,6 @@ docker build -t swagger-editor .
 
 # Run the container
 docker run -d -p 80:8080 swagger-editor
-
 ```
 
 You can then view the app by navigating to `http://localhost` in your browser.
@@ -158,6 +199,62 @@ You can then view the app by navigating to `http://localhost` in your browser.
 * [Importing your OpenAPI document](docs/import.md)
 
 * [Contributing](https://github.com/swagger-api/.github/blob/master/CONTRIBUTING.md)
+
+### Using older version of React
+
+> [!IMPORTANT]
+> By older versions we specifically refer to `React >=17 <18`.
+
+By default [swagger-editor@4](https://www.npmjs.com/package/swagger-editor) npm package comes with latest version of [React@18](https://react.dev/blog/2022/03/29/react-v18).
+It's possible to use _swagger-editor@4_ npm package with older version of React.
+
+Let's say my application integrates with _swagger-editor@4_ npm package and uses [React@17.0.2](https://www.npmjs.com/package/react/v/17.0.2).
+
+### npm
+
+In order to inform `swagger-editor@4` npm package that I require it to use my React version, I need to use [npm overrides](https://docs.npmjs.com/cli/v9/configuring-npm/package-json#overrides).
+
+```json
+{
+  "dependencies": {
+    "react": "=17.0.2",
+    "react-dom": "=17.0.2"
+  },
+  "overrides": {
+    "swagger-editor": {
+      "react": "$react",
+      "react": "$react-dom",
+      "react-redux": "^8"
+    }
+  }
+}
+```
+
+> [!NOTE]
+> The React and ReactDOM override are defined as a reference to the dependency. Since _react-redux@9_ only supports `React >= 18`, we need to use _react-redux@8_.
+
+
+### yarn
+
+In order to inform `swagger-editor@4` npm package that I require it to use my specific React version, I need to use [yarn resolutions](https://yarnpkg.com/cli/set/resolution).
+
+
+```json
+{
+  "dependencies": {
+    "react": "17.0.2",
+    "react-dom": "17.0.2"
+  },
+  "resolutions": {
+    "swagger-editor/react": "17.0.2",
+    "swagger-editor/react-dom": "17.0.2",
+    "swagger-editor/react-redux": "^8"
+  }
+}
+```
+
+> [!NOTE]
+> The React and ReactDOM resolution cannot be defined as a reference to the dependency. Unfortunately *yarn* does not support aliasing like `$react` or `$react-dom` as *npm* does. You'll need to specify the exact versions.
 
 ## Security contact
 

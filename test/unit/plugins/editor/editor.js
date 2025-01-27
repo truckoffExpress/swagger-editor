@@ -1,6 +1,6 @@
 import rewiremock from 'rewiremock';
 import Enzyme, { shallow } from 'enzyme';
-import Adapter from 'enzyme-adapter-react-15';
+import Adapter from '@cfaester/enzyme-adapter-react-18';
 import React from 'react';
 import FakeAce, { Session } from 'test/unit/mocks/ace.js';
 import { fromJS } from 'immutable';

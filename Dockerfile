@@ -1,21 +1,22 @@
-FROM nginx:1.21-alpine
+FROM nginx:1.27.3-alpine
 
-LABEL maintainer="fehguy"
+LABEL maintainer="vladimir.gorej@smartbear.com" \
+      org.opencontainers.image.authors="vladimir.gorej@smartbear.com" \
+      org.opencontainers.image.url="https://editor.swagger.io" \
+      org.opencontainers.image.source="https://github.com/swagger-api/swagger-editor"
 
-ENV BASE_URL ""
+ENV BASE_URL="/" \
+    PORT="8080"
 
-COPY nginx.conf /etc/nginx/
+RUN apk update && apk add --no-cache "tiff>=4.4.0-r4"
+
+COPY nginx.conf /etc/nginx/templates/default.conf.template
 
 COPY ./index.html /usr/share/nginx/html/
 COPY ./dist/oauth2-redirect.html /usr/share/nginx/html/
 COPY ./dist/* /usr/share/nginx/html/dist/
-COPY ./docker-run.sh /usr/share/nginx/
+COPY ./docker-run.sh /docker-entrypoint.d/91-docker-run.sh
 
-
-RUN chmod +x /usr/share/nginx/docker-run.sh && \
-    chmod -R a+rw /usr/share/nginx && \
-    chmod -R a+rw /etc/nginx
+RUN chmod +x /docker-entrypoint.d/91-docker-run.sh
 
 EXPOSE 8080
-
-CMD ["sh", "/usr/share/nginx/docker-run.sh"]

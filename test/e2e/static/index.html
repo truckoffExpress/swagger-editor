@@ -66,8 +66,12 @@
         dom_id: '#swagger-editor',
         layout: 'StandaloneLayout',
         presets: [
-          SwaggerEditorStandalonePreset
-        ]
+          SwaggerEditorStandalonePreset,
+        ],
+        plugins: [
+          SwaggerEditorStandalonePreset.plugins.TopbarNewEditorButton,
+        ],
+        queryConfigEnabled: true,
       })
 
       window.editor = editor

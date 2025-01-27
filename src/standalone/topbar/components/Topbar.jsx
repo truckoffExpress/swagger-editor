@@ -3,11 +3,13 @@ import PropTypes from "prop-types"
 import Swagger from "swagger-client"
 import URL from "url"
 import DropdownMenu from "./DropdownMenu"
-import reactFileDownload from "react-file-download"
+import fileDownload from "js-file-download"
 import YAML from "js-yaml"
 import beautifyJson from "json-beautify"
+import { petStoreOas2Def, petStoreOas3Def } from "../../../plugins/default-definitions"
 
-import Logo from "./logo_small.svg"
+
+import Logo from "../assets/logo_small.svg"
 
 export default class Topbar extends React.Component {
   constructor(props, context) {
@@ -84,7 +86,7 @@ export default class Topbar extends React.Component {
       // allows e2e tests to proceed without choking on file download native event
       return
     }
-    return reactFileDownload(content, fileName)
+    return fileDownload(content, fileName)
   }
 
   // Menu actions
@@ -115,7 +117,7 @@ export default class Topbar extends React.Component {
         const shouldContinue = confirm("Swagger-Editor isn't able to parse your API definition. Are you sure you want to save the editor content as YAML?")
         if(!shouldContinue) return
       } else {
-        return alert("Save as YAML is not currently possible because Swagger-Editor wasn't able to parse your API definiton.")
+        return alert("Save as YAML is not currently possible because Swagger-Editor wasn't able to parse your API definition.")
       }
     }
 
@@ -142,7 +144,7 @@ export default class Topbar extends React.Component {
     if(this.hasParserErrors()) {
       // we can't recover from a parser error in save as JSON
       // because we are always parsing so we can beautify
-      return alert("Save as JSON is not currently possible because Swagger-Editor wasn't able to parse your API definiton.")
+      return alert("Save as JSON is not currently possible because Swagger-Editor wasn't able to parse your API definition.")
     }
 
     // JSON or YAML String -> JS object
@@ -240,6 +242,14 @@ export default class Topbar extends React.Component {
     }
   }
 
+  loadPetStoreOas2 = () => {
+    this.props.specActions.updateSpec(petStoreOas2Def)
+  }
+
+  loadPetStoreOas3 = () => {
+    this.props.specActions.updateSpec(petStoreOas3Def)
+  }
+
   // Helpers
   showModal = (name) => {
     this.setState({
@@ -315,6 +325,9 @@ export default class Topbar extends React.Component {
     const TopbarInsert = getComponent("TopbarInsert")
     const ImportFileMenuItem = getComponent("ImportFileMenuItem")
     const ConvertDefinitionMenuItem = getComponent("ConvertDefinitionMenuItem")
+    const AboutMenu = getComponent("TopbarAboutMenu", true)
+    const NewEditorButton = getComponent("TopbarNewEditorButton", true)
+    const { swagger2ConverterUrl } = this.props.getConfigs()
 
     let showServersMenu = this.state.servers && this.state.servers.length
     let showClientsMenu = this.state.clients && this.state.clients.length
@@ -334,28 +347,24 @@ export default class Topbar extends React.Component {
       }
     }
 
-    const saveAsElements = []
-
-    if(isJson) {
-      saveAsElements.push(<li><button type="button" onClick={this.saveAsJson}>Save as JSON</button></li>)
-      saveAsElements.push(<li><button type="button" onClick={this.saveAsYaml}>Convert and save as YAML</button></li>)
-    } else {
-      saveAsElements.push(<li><button type="button" onClick={this.saveAsYaml}>Save as YAML</button></li>)
-      saveAsElements.push(<li><button type="button" onClick={this.saveAsJson}>Convert and save as JSON</button></li>)
-    }
-
     return (
       <div className="swagger-editor-standalone">
         <div className="topbar">
           <div className="topbar-wrapper">
-            <Link href="#">
+            <Link href="https://swagger.io/tools/swagger-editor/">
               <img height="35" className="topbar-logo__img" src={ Logo } alt=""/>
             </Link>
             <DropdownMenu {...makeMenuOptions("File")}>
               <li><button type="button" onClick={this.importFromURL}>Import URL</button></li>
               <ImportFileMenuItem onDocumentLoad={content => this.props.specActions.updateSpec(content)} />
               <li role="separator"></li>
-              {saveAsElements}
+              {isJson ? [
+                  <li key="1"><button type="button" onClick={this.saveAsJson}>Save as JSON</button></li>,
+                  <li key="2"><button type="button" onClick={this.saveAsYaml}>Convert and save as YAML</button></li>
+              ] : [
+                  <li key="1"><button type="button" onClick={this.saveAsYaml}>Save as YAML</button></li>,
+                  <li key="2"><button type="button" onClick={this.saveAsJson}>Convert and save as JSON</button></li>
+              ]}
               <li role="separator"></li>
               <li><button type="button" onClick={this.clearEditor}>Clear editor</button></li>
             </DropdownMenu>
@@ -363,18 +372,24 @@ export default class Topbar extends React.Component {
               <li><button type="button" onClick={this.convertToYaml}>Convert to YAML</button></li>
               <ConvertDefinitionMenuItem
                 isSwagger2={specSelectors.isSwagger2()}
+                swagger2ConverterUrl={swagger2ConverterUrl}
                 onClick={() => topbarActions.showModal("convert")}
-                />
+              />
+              <li role="separator"></li>
+              <li><button type="button" onClick={this.loadPetStoreOas3}>Load Petstore OAS 3.0</button></li>
+              <li><button type="button" onClick={this.loadPetStoreOas2}>Load Petstore OAS 2.0</button></li>
             </DropdownMenu>
             <TopbarInsert {...this.props} />
             { showServersMenu ? <DropdownMenu className="long" {...makeMenuOptions("Generate Server")}>
               { this.state.servers
-                  .map((serv, i) => <li key={i}><button type="button" onClick={this.downloadGeneratedFile.bind(null, "server", serv)}>{serv}</button></li>) }
+                  .map((serv, i) => <li key={i}><button type="button" onClick={() => this.downloadGeneratedFile("server", serv)}>{serv}</button></li>) }
             </DropdownMenu> : null }
             { showClientsMenu ? <DropdownMenu className="long" {...makeMenuOptions("Generate Client")}>
               { this.state.clients
-                  .map((cli, i) => <li key={i}><button type="button" onClick={this.downloadGeneratedFile.bind(null, "client", cli)}>{cli}</button></li>) }
+                  .map((cli, i) => <li key={i}><button type="button" onClick={() => this.downloadGeneratedFile("client", cli)}>{cli}</button></li>) }
             </DropdownMenu> : null }
+            {AboutMenu && <AboutMenu {...makeMenuOptions("About")} />}
+            {NewEditorButton && <NewEditorButton />}
           </div>
         </div>
       </div>
@@ -388,5 +403,5 @@ Topbar.propTypes = {
   specActions: PropTypes.object.isRequired,
   topbarActions: PropTypes.object.isRequired,
   getComponent: PropTypes.func.isRequired,
-  getConfigs: PropTypes.func.isRequired
+  getConfigs: PropTypes.func.isRequired,
 }
